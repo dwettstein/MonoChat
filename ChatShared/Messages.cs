@@ -8,6 +8,11 @@ namespace ChatShared
 {
     public class DisconnectMessage { }
 
+    public class OnlineUserMessage
+    {
+        public string[] Users { get; set; }
+    }
+
     public class ReceiveMessage
     {
         public string Message { get; set; }

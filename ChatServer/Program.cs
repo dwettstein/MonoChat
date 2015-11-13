@@ -3,6 +3,7 @@ using Akka.Actor;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Akka.Remote;
 
 namespace ChatServer
 {
@@ -11,7 +12,8 @@ namespace ChatServer
         static void Main(string[] args)
         {
             var system = ActorSystem.Create(Config.AkkaServer, Config.AkkaConfig);
-            system.ActorOf<ChatServer>(Config.AkkaServer);
+            IActorRef server = system.ActorOf<ChatServer>(Config.AkkaServer);
+            system.EventStream.Subscribe(server, typeof(DisassociatedEvent));
             Console.Read();
         }
     }

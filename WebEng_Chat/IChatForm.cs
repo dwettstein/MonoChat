@@ -9,5 +9,6 @@ namespace WebEng_Chat
     interface IChatForm
     {
         void MessageReceived(string msg);
+        void OnlineUsersChanged(string[] users);
     }
 }

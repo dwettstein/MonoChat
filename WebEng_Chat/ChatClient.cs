@@ -14,58 +14,78 @@ namespace WebEng_Chat
         private IChatForm chatForm;
 		private IActorRef client;
 
-        public ChatClient(IChatForm chatForm, string name)
+        public ChatClient(IChatForm chatForm)
         {
             this.chatForm = chatForm;
 			var system = ActorSystem.Create(Config.AkkaClient + (new Random()).Next(999999), Config.AkkaConfig);
 			system.ActorSelection(Config.AkkaServerSelection);
-			client = system.ActorOf(Props.Create(() => new Client(this, name)));
+			client = system.ActorOf(Props.Create(() => new Client(this)));
+        }
+
+        public void RegisterMessage(string name)
+        {
+            if (client != null) client.Tell(new RegisterMessage { Name = name });
         }
         
         public void SendMessage(string msg)
         {
-			client.Tell(new SendMessage { Message = msg });
+            if (client != null) client.Tell(new SendMessage { Message = msg });
         }
 
         public void Disconnect()
         {
-			client.Tell(new DisconnectMessage());
+			if (client != null) client.Tell(new DisconnectMessage());
         }
     
         public void MessageReceived(string msg)
         {
 			chatForm.MessageReceived(msg);
         }
+
+        public void OnlineUsersChanged(string[] users)
+        {
+            chatForm.OnlineUsersChanged(users);
+        }
     }
 
     class Client : TypedActor,
         IHandle<SendMessage>,
         IHandle<ReceiveMessage>,
-        IHandle<DisconnectMessage>
+        IHandle<DisconnectMessage>,
+        IHandle<OnlineUserMessage>
     {
         private readonly ChatClient chatClient;
         private readonly ActorSelection server;
 
-        public Client(ChatClient chatClient, string name)
+        public Client(ChatClient chatClient)
         {
             this.chatClient = chatClient;
             this.server = Context.ActorSelection(Config.AkkaServerSelection);
-            this.server.Tell(new RegisterMessage { Name = name }, Self);
         }
 
         public void Handle(DisconnectMessage msg)
         {
-            server.Tell(msg, Self);
+            if (server != null) server.Tell(msg, Self);
+        }
+
+        public void Handle(RegisterMessage msg)
+        {
+            if (server != null) server.Tell(msg, Self);
         }
 
         public void Handle(SendMessage msg)
         {
-            server.Tell(msg, Self);
+            if (server != null) server.Tell(msg, Self);
         }
 
         public void Handle(ReceiveMessage msg)
         {
             chatClient.MessageReceived(msg.Message);
+        }
+
+        public void Handle(OnlineUserMessage msg)
+        {
+            chatClient.OnlineUsersChanged(msg.Users);
         }
     }
 }
