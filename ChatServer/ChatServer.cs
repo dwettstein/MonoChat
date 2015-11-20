@@ -64,7 +64,13 @@ namespace ChatServer
         {
             if (clients.ContainsKey(Sender))
             {
+                string userName;
+                bool isUserName = clients.TryGetValue(Sender, out userName);
                 clients.Remove(Sender);
+                if (isUserName)
+                {
+                    Self.Tell(new SendMessage { Message = "User " + userName + " has left the akka chat!" }, Self);
+                }
             }
             SendOnlineUserMessage();
         }
