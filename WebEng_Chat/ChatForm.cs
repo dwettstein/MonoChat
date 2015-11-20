@@ -13,15 +13,32 @@ namespace WebEng_Chat
     public partial class ChatForm : Form, IChatForm
     {
         private const string OneDriveClientID = "000000004416D320";
+        private string serverIp = "localhost";
         private ChatClient chatClient;
         private IOneDriveClient oneDriveClient = null;
 
         public ChatForm()
         {
             InitializeComponent();
-            chatClient = new ChatClient(this);
+            EnterServerIp();
+            chatClient = new ChatClient(this, serverIp);
             ChangeContentSize();
             DoLogin();
+        }
+
+        private void EnterServerIp()
+        {
+            EnterIpForm enterIpForm = new EnterIpForm();
+            if (enterIpForm.ShowDialog(this) == DialogResult.OK)
+            {
+                serverIp = enterIpForm.txName.Text;
+            }
+            else
+            {
+                serverIp = "localhost";
+
+            }
+            enterIpForm.Dispose();
         }
 
         private void DoLogin()

@@ -14,10 +14,12 @@ namespace WebEng_Chat
         private IChatForm chatForm;
 		private IActorRef client;
 
-        public ChatClient(IChatForm chatForm)
+        public ChatClient(IChatForm chatForm, string serverIp)
         {
             this.chatForm = chatForm;
-			var system = ActorSystem.Create(Config.AkkaClient + (new Random()).Next(999999), Config.AkkaConfig);
+            Config.AkkaIp = serverIp;
+            Config.setConfig();
+            var system = ActorSystem.Create(Config.AkkaClient + (new Random()).Next(999999), Config.AkkaConfig);
 			system.ActorSelection(Config.AkkaServerSelection);
 			client = system.ActorOf(Props.Create(() => new Client(this)));
         }
