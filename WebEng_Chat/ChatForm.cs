@@ -14,6 +14,7 @@ namespace WebEng_Chat
     {
         private const string OneDriveClientID = "000000004416D320";
         private string serverIp = "localhost";
+        private string serverPort = "8081";
         private ChatClient chatClient;
         private IOneDriveClient oneDriveClient = null;
 
@@ -21,7 +22,7 @@ namespace WebEng_Chat
         {
             InitializeComponent();
             EnterServerIp();
-            chatClient = new ChatClient(this, serverIp);
+            chatClient = new ChatClient(this, serverIp, serverPort);
             ChangeContentSize();
             DoLogin();
         }
@@ -31,7 +32,17 @@ namespace WebEng_Chat
             EnterIpForm enterIpForm = new EnterIpForm();
             if (enterIpForm.ShowDialog(this) == DialogResult.OK)
             {
-                serverIp = enterIpForm.txName.Text;
+                string enteredText = enterIpForm.txName.Text;
+                if (enteredText.Contains(":"))
+                {
+                    string[] textParts = enteredText.Split(':');
+                    serverIp = textParts[0];
+                    serverPort = textParts[1];
+                }
+                else
+                {
+                    serverIp = enteredText;
+                }
             }
             else
             {

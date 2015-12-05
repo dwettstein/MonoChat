@@ -13,11 +13,11 @@ namespace ChatServer
         {
             if (args.Length > 0)
             {
-                Config.AkkaIp = args[0];
-                Console.WriteLine("Set chat host IP to: " + Config.AkkaIp);
+                Config.AkkaServerIp = args[0];
+                Console.WriteLine("Set chat host IP to: " + Config.AkkaServerIp);
             }
-            Config.setConfig();
-            var system = ActorSystem.Create(Config.AkkaServer, Config.AkkaConfig);
+            Config.setServerConfig();
+            var system = ActorSystem.Create(Config.AkkaServer, Config.AkkaServerConfig);
             IActorRef server = system.ActorOf<ChatServer>(Config.AkkaServer);
             system.EventStream.Subscribe(server, typeof(DisassociatedEvent));
             Console.Read();

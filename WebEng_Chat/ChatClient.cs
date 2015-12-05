@@ -1,11 +1,7 @@
 ﻿using ChatShared;
 using Akka.Actor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WebEng_Chat
 {
@@ -14,14 +10,20 @@ namespace WebEng_Chat
         private IChatForm chatForm;
 		private IActorRef client;
 
-        public ChatClient(IChatForm chatForm, string serverIp)
+        public ChatClient(IChatForm chatForm, string serverIp, string serverPort)
         {
             this.chatForm = chatForm;
-            Config.AkkaIp = serverIp;
+            Config.AkkaServerIp = serverIp;
+            Config.AkkaServerPort = int.Parse(serverPort);
+            Config.setServerConfig();
+            string hostname = Dns.GetHostName();
+            Console.WriteLine("Hostname: " + hostname);
+            Config.AkkaIp = hostname;
+            Config.AkkaPort = 0;
             Config.setConfig();
             var system = ActorSystem.Create(Config.AkkaClient + (new Random()).Next(999999), Config.AkkaConfig);
-			system.ActorSelection(Config.AkkaServerSelection);
-			client = system.ActorOf(Props.Create(() => new Client(this)));
+            system.ActorSelection(Config.AkkaServerSelection);
+			client = system.ActorOf(Props.Create<Client>(() => new Client(this)));
         }
 
         public void RegisterMessage(string name)
